@@ -1,0 +1,180 @@
+---
+title: "Project file and folder structure — architecture reference"
+description: "Explore how reestructuracion.html, js/seminarios.js, and the five modular CSS files are organized, what each one does, and how they connect at runtime."
+---
+
+El proyecto es un sitio de una sola página cuya estructura de archivos refleja una separación clara de responsabilidades: un único documento HTML actúa como punto de entrada, un archivo JavaScript contiene todos los datos y la lógica de interacción, y cinco archivos CSS independientes se ocupan de distintos aspectos del estilo. No existe ningún paso de compilación — el navegador carga los archivos directamente.
+
+## Directory tree
+
+```text
+Pagina-de-Seminarios-y-Eventos-UIM/
+├── reestructuracion.html   # HTML entry point and page shell
+├── js/
+│   └── seminarios.js       # Seminar data array and all UI logic
+└── css/
+    ├── reset.css            # Box-model reset and base body styles
+    ├── layout.css           # Page wrapper, section, and card grid
+    ├── components.css       # Filter toolbar, seminar cards, and modal
+    ├── typography.css       # Headings, objective text, and metadata
+    └── utilities.css        # (Reserved for future utility classes)
+```
+
+<Note>
+  `utilities.css` is currently empty and is included in `reestructuracion.html` as a placeholder for future single-purpose utility classes (spacing helpers, visibility toggles, etc.).
+</Note>
+
+## HTML entry point
+
+**`reestructuracion.html`** is the only HTML file in the project. It performs three jobs:
+
+1. **Loads external resources** — Google Fonts (`Open Sans`), Font Awesome 6.0.0-beta3, and all five CSS files — in `<head>`.
+2. **Defines the static page shell** — the `.site-wrapper` > `.seminarios-section` hierarchy that scopes all layout rules, the `.filter-toolbar` with its four filter buttons and search input, and the empty `#cardsContainer` div that JavaScript populates at runtime.
+3. **Contains the enrollment modal markup** — `#inscripcionModal` with its form fields (`#inputNombre`, `#inputCorreo`, `#inputTipoUsuario`, `#inputNumeroCuenta`, `#modalSeminario`, `#inputMotivo`) and an inline `<script>` that handles the user-type toggle animation.
+
+```html
+<!-- Inline script handles the account-number field toggle -->
+<script>
+    (function () {
+        const selectTipo  = document.getElementById('inputTipoUsuario');
+        const grupoCuenta = document.getElementById('grupo-numero-cuenta');
+        const inputCuenta = document.getElementById('inputNumeroCuenta');
+        const badge       = document.getElementById('tipoBadge');
+
+        selectTipo.addEventListener('change', function () {
+            const tipo = this.value;
+            if (tipo === 'interno') {
+                grupoCuenta.classList.add('visible');
+                inputCuenta.setAttribute('required', 'required');
+                badge.textContent = 'FES Acatlán';
+                badge.className = 'tipo-badge interno';
+            } else {
+                grupoCuenta.classList.remove('visible');
+                inputCuenta.removeAttribute('required');
+                inputCuenta.value = '';
+                badge.textContent = tipo === 'externo' ? 'Externo' : '';
+                badge.className = tipo === 'externo' ? 'tipo-badge externo' : 'tipo-badge';
+            }
+        });
+    })();
+</script>
+```
+
+## JavaScript: `js/seminarios.js`
+
+The entire application logic lives inside a single IIFE (immediately invoked function expression) that runs after `reestructuracion.html` loads the script tag at the bottom of `<body>`.
+
+```javascript
+(function() {
+    const seminarios = [ /* array of seminar objects */ ];
+    // ... modal setup, renderCards(), filtrar(), event listeners
+})();
+```
+
+### The `seminarios` data array
+
+Each element in the `seminarios` array is a plain object with the following shape:
+
+```javascript
+{
+    tipo:        'anual' | 'permanente' | 'especial',
+    titulo:      'string',
+    objetivo:    'string',
+    responsable: 'string',
+    correo:      'string',   // may be empty string
+    telefono:    'string',   // may be empty string
+    areas:       ['string']  // knowledge-area tags
+}
+```
+
+<Tip>
+  An optional `imagen` property can be added to any seminar object to override the default placeholder image. If the property is absent or the image fails to load, the card shows a fallback div with a chalkboard icon in brand colors.
+</Tip>
+
+### Core functions
+
+<AccordionGroup>
+  <Accordion title="renderCards(filteredSeminarios)">
+    Clears `#cardsContainer` and rebuilds it from the provided array slice. For each seminar it creates a `.seminario-card` div with an image (or fallback), a category badge (`.card-tag`), the title (`<h3>`), the objective block with its **Ver más** toggle, area tags (`.card-areas`), the responsible academic, optional contact details, and the **Inscribirme ahora** button. All HTML is injected via `card.innerHTML`.
+  </Accordion>
+  <Accordion title="filtrar()">
+    Reads the currently active `.filter-btn` dataset (`todos` | `anual` | `permanente` | `especial`) and the live value of `#searchInput`, then filters the `seminarios` array with a two-part predicate — category match AND text match across `titulo`, `objetivo`, and `responsable` — before calling `renderCards()` with the result.
+  </Accordion>
+  <Accordion title="openModal(titulo) / closeModal()">
+    `openModal` adds `.active` to `#inscripcionModal`, sets `#modalSeminario`'s value to the selected seminar title, and disables body scroll. `closeModal` reverses all three changes and resets the form via `modalForm.reset()`.
+  </Accordion>
+</AccordionGroup>
+
+## CSS architecture
+
+The five CSS files are loaded in a fixed order in `<head>`. Each file has a single responsibility, and later files build on earlier ones.
+
+<Tabs>
+  <Tab title="reset.css">
+    Applies a universal `box-sizing: border-box` reset, zeroes all margins and padding, sets the base font to `'Open Sans', sans-serif`, and configures `body` as a centered flex column on a `#e9ecf0` background.
+
+    ```css
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    body {
+        font-family: 'Open Sans', sans-serif;
+        background: #e9ecf0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    ```
+  </Tab>
+  <Tab title="layout.css">
+    Defines the outer `.site-wrapper` (white, `max-width: 1280px`, with a blue-tinted box shadow), `.seminarios-section` padding, and the responsive `.cards-grid` using `grid-template-columns: repeat(auto-fill, minmax(360px, 1fr))`. Also contains the single responsive breakpoint at 700 px that stacks the filter toolbar vertically.
+
+    ```css
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 1.8rem;
+        margin-top: 1.5rem;
+    }
+    ```
+  </Tab>
+  <Tab title="components.css">
+    The largest CSS file. It covers:
+
+    - **Filter toolbar** — `.filter-toolbar`, `.filter-group`, `.filter-btn`, `.filter-btn.active`, `.search-wrapper` and its child elements.
+    - **Seminar cards** — `.seminario-card` (with a `4px solid #B38633` top border), `.card-body`, hover lift effect, `.card-tag` and its `.permanente` / `.especial` variants, `.card-areas` pill tags, `.card-img` and `.card-img-fallback`, the `.btn-inscripcion` button.
+    - **Enrollment modal** — `.modal-overlay`, `.modal-overlay.active`, `.modal-content` (with `@keyframes modalIn` slide-in animation), `.modal-header`, `.modal-close`, `.modal-form`, `.form-group`, and `.btn-submit`.
+  </Tab>
+  <Tab title="typography.css">
+    Covers all text-level rules that do not fit into component or layout concerns:
+
+    - `.section-title` — 2 rem bold, `#003B6F`, underlined with a `2px solid #B38633` bottom border.
+    - `.seminario-card h3` — 1.3 rem bold, `#003B6F`, line-height 1.4.
+    - `.objetivo` block — left-bordered with `3px solid #B38633`, `#fafafa` background, minimum 120 px height.
+    - `.card-objetivo` — three-line clamp via `-webkit-line-clamp: 3`; `.card-objetivo.expandido` removes the clamp.
+    - `.btn-toggle-texto` — borderless gold button for the Ver más / Ver menos toggle.
+    - `.responsable`, `.correo`, `.telefono` — contact metadata styles with icon spacing.
+  </Tab>
+  <Tab title="utilities.css">
+    Currently empty. Reserved for future single-purpose utility classes that do not belong to any specific component.
+  </Tab>
+</Tabs>
+
+## How the files connect at runtime
+
+<Steps>
+  <Step title="Browser loads reestructuracion.html">
+    The parser fetches and applies all five CSS files in order, then renders the static HTML shell: the section title, filter toolbar, empty `#cardsContainer`, and the hidden modal overlay.
+  </Step>
+  <Step title="seminarios.js executes">
+    The IIFE runs immediately. It populates `#modalSeminario` with all seminar titles, then calls `renderCards(seminarios)` to inject all 31 cards into `#cardsContainer`.
+  </Step>
+  <Step title="Event listeners activate">
+    Filter buttons, the search input, card **Ver más** toggles, and **Inscribirme ahora** buttons all receive their event listeners. From this point the page is fully interactive.
+  </Step>
+  <Step title="User interacts">
+    Clicking a filter button or typing in the search field triggers `filtrar()`, which re-renders only the matching cards. Clicking an enrollment button calls `openModal(titulo)` to display the pre-filled modal form.
+  </Step>
+</Steps>

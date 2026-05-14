@@ -1,133 +1,48 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
-icon: 'star'
+title: "Seminarios y Eventos UIM – FES Acatlán"
+description: "Documentation for the FES Acatlán UIM seminars page — learn how to browse the catalog, filter by category, enroll in a seminar, and customize the site."
 ---
 
-## Setting up
+La página de Seminarios y Eventos UIM es un sitio web estático desarrollado para la Facultad de Estudios Superiores Acatlán (UNAM) que permite a estudiantes, profesores e investigadores explorar el catálogo de seminarios de investigación activos, filtrarlos por categoría o búsqueda de texto, y enviar solicitudes de inscripción directamente desde el sitio.
 
-Get your documentation site up and running in minutes.
-
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Introducción" icon="house" href="/introduction">
+    Conoce el proyecto, su propósito y los casos de uso principales de la plataforma.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Estructura del proyecto" icon="folder-tree" href="/project-structure">
+    Revisa la organización de archivos HTML, CSS y JavaScript del sitio.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Catálogo de seminarios" icon="chalkboard" href="/features/seminar-catalog">
+    Entiende cómo se muestran y organizan las tarjetas de seminarios.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Filtros y búsqueda" icon="magnifying-glass" href="/features/filtering-search">
+    Aprende cómo funciona el sistema de filtrado por categoría y búsqueda de texto.
   </Card>
-</Columns>
+  <Card title="Formulario de inscripción" icon="pen-to-square" href="/features/enrollment-form">
+    Documenta el modal de inscripción con detección de tipo de usuario.
+  </Card>
+  <Card title="Agregar seminarios" icon="plus" href="/customization/adding-seminars">
+    Añade nuevos seminarios al catálogo editando el archivo de datos.
+  </Card>
+</CardGroup>
 
-## Create beautiful pages
+## Primeros pasos
 
-Everything you need to create world-class documentation.
+<Steps>
+  <Step title="Descarga el repositorio">
+    Clona o descarga el repositorio de GitHub y ábrelo en tu editor favorito.
+  </Step>
+  <Step title="Abre el archivo HTML">
+    Abre `reestructuracion.html` en un navegador o sírvelo con cualquier servidor web estático.
+  </Step>
+  <Step title="Personaliza el catálogo">
+    Edita el arreglo `seminarios` en `js/seminarios.js` para agregar, modificar o eliminar seminarios.
+  </Step>
+  <Step title="Ajusta los estilos">
+    Modifica los archivos CSS en la carpeta `css/` para adaptar colores y tipografía a tus necesidades.
+  </Step>
+</Steps>
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
-
-## Make your content agent ready
-
-Make your docs work for humans and AI agents alike.
-
-<Columns cols={2}>
-  <Card
-    title="Prompt component"
-    icon="robot"
-    href="/agent-ready/prompt"
-  >
-    Embed shareable AI prompts readers can copy or open in Cursor.
-  </Card>
-  <Card
-    title="Visibility"
-    icon="eye"
-    href="/agent-ready/visibility"
-  >
-    Show different content to humans and agents reading your docs.
-  </Card>
-  <Card
-    title="Contextual menu"
-    icon="bolt"
-    href="/agent-ready/contextual"
-  >
-    Give readers one-click access to Claude, ChatGPT, Cursor, and more.
-  </Card>
-  <Card
-    title="AI coding tools"
-    icon="wand-magic-sparkles"
-    href="/ai-tools/claude-code"
-  >
-    Set up Claude Code, Cursor, or Windsurf with Mintlify's skill.
-  </Card>
-</Columns>
-
-## Need inspiration?
-
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+<Note>
+  El sitio es completamente estático — no requiere servidor backend, base de datos ni dependencias de npm. Funciona con un servidor de archivos estáticos o directamente abriendo el HTML en el navegador.
+</Note>

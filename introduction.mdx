@@ -1,0 +1,85 @@
+---
+title: "FES Acatlán UIM seminars page — purpose and features"
+description: "Learn what the Seminarios y Eventos UIM site is, who it serves, and how its card catalog, category filters, and enrollment modal work together."
+---
+
+La página de **Seminarios y Eventos UIM** es un sitio web estático desarrollado para la Unidad de Investigación Multidisciplinaria (UIM) de la Facultad de Estudios Superiores Acatlán, UNAM. Su propósito es centralizar el catálogo de seminarios de investigación activos y ofrecer a la comunidad universitaria una vía directa para explorarlos e inscribirse en ellos, sin necesidad de infraestructura de servidor ni dependencias externas.
+
+## Who the site is for
+
+The site is designed for three overlapping audiences at FES Acatlán:
+
+<CardGroup cols={3}>
+  <Card title="Students" icon="graduation-cap">
+    Undergraduate and postgraduate students who want to join a research seminar to deepen their disciplinary training or satisfy curricular requirements.
+  </Card>
+  <Card title="Professors" icon="chalkboard-user">
+    Faculty members looking to participate in, collaborate with, or stay informed about active seminars across the faculty's areas of knowledge.
+  </Card>
+  <Card title="Researchers" icon="flask">
+    Researchers from FES Acatlán and external institutions who need to identify seminars aligned with their academic interests.
+  </Card>
+</CardGroup>
+
+## Seminar categories
+
+The catalog organizes all 31 seminars into three categories, each with distinct visual styling and filter behavior.
+
+<AccordionGroup>
+  <Accordion title="Annual seminars (anual) — 14 total">
+    Annual seminars run for a fixed academic year. They cover topics such as human rights justiciability, social research methods, press studies, hybrid pedagogy, and architectural history. Cards for annual seminars carry a dark-blue `Anual` badge (`background: #003B6F`).
+  </Accordion>
+  <Accordion title="Permanent seminars (permanente) — 15 total">
+    Permanent seminars have no fixed end date and meet on a recurring basis. Topics include geopolitics, gender studies, linguistic historiography, regional analysis, and sustainable governance. Their badge uses a slightly lighter blue (`background: #1f4b7a`) to distinguish them visually from annual seminars.
+  </Accordion>
+  <Accordion title="Special seminars (especial) — 2 total">
+    Special seminars are one-off or internationally scoped sessions. Currently the catalog includes *Seminario "En la mirada de otros"* and *Seminario Internacional: Retos y Perspectivas de la Educación y la Pedagogía*. Their badge uses the gold accent (`background: #B38633; color: #003B6F`).
+  </Accordion>
+</AccordionGroup>
+
+## Key features
+
+<CardGroup cols={2}>
+  <Card title="Card catalog" icon="table-cells-large" href="/features/seminar-catalog">
+    Each seminar is displayed as a responsive card with its title, objective, responsible academic, knowledge-area tags, and an enrollment button. The card grid uses `auto-fill` columns with a minimum width of 360 px.
+  </Card>
+  <Card title="Category filters and text search" icon="magnifying-glass" href="/features/filtering-search">
+    A pill-shaped toolbar lets you switch between All, Annual, Permanent, and Special views. A live text input searches simultaneously across seminar titles, objectives, and responsible academics.
+  </Card>
+  <Card title="Enrollment modal" icon="pen-to-square" href="/features/enrollment-form">
+    Clicking **Inscribirme ahora** on any card opens a modal form that collects the user's name, email, user type (internal or external), and enrollment reason. Internal FES Acatlán users must also provide their account number.
+  </Card>
+  <Card title="Expandable objectives" icon="align-left">
+    Long objective texts are initially clamped to three lines. A **Ver más / Ver menos** toggle reveals or hides the full text without leaving the page, keeping the card grid compact.
+  </Card>
+</CardGroup>
+
+## Technology stack
+
+The site is intentionally dependency-free. There is no build step, no package manager, and no framework.
+
+| Layer | Technology |
+|---|---|
+| Markup | HTML5 (`reestructuracion.html`) |
+| Styles | Five modular plain CSS files in `css/` |
+| Logic | One IIFE-wrapped plain JavaScript file (`js/seminarios.js`) |
+| Icons | Font Awesome 6.0.0-beta3 (CDN) |
+| Typography | Open Sans 400 / 600 / 700 (Google Fonts CDN) |
+
+<Tip>
+  Because the site is fully static, you can preview it by opening `reestructuracion.html` directly in any browser — no local server required.
+</Tip>
+
+## Brand colors and visual design
+
+The visual identity mirrors FES Acatlán's institutional palette:
+
+- **Primary blue** `#003B6F` — used for section titles, card headings, active filter buttons, the modal header, and form labels.
+- **Gold accent** `#B38633` — used for the section title underline, icon highlights, the special-seminar badge, the search icon, and the gold arrow on enrollment buttons.
+- **Background** `#e9ecf0` — a light blue-grey page background that frames the white content card (`max-width: 1280px`).
+
+The design principle is restraint: only two brand colors appear throughout the interface, always in the same semantic roles, so the hierarchy is immediately legible regardless of the seminar category being browsed.
+
+<Note>
+  The inline `<style>` block in `reestructuracion.html` handles two micro-animations that belong to the HTML file's specific logic: the slide-in transition for the account-number field and the color-coded user-type badge. Everything else lives in the external CSS files.
+</Note>

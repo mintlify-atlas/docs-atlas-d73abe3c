@@ -1,0 +1,135 @@
+---
+title: 'Filter buttons and live text search — how they work'
+description: 'Real-time category filter buttons and a free-text search field that work together to narrow the seminar catalog without any page reload.'
+---
+
+The page provides two complementary controls for navigating the catalog: a set of category filter buttons and a free-text search input. Both controls call the same `filtrar()` function, which computes the intersection of the active category and the search term, then passes the result to `renderCards()`.
+
+## Filter toolbar
+
+The toolbar is declared in `reestructuracion.html` and styled in `css/components.css`. It sits above the card grid inside `.filter-toolbar`.
+
+```html reestructuracion.html
+<div class="filter-toolbar">
+    <div class="filter-group">
+        <button class="filter-btn active" data-filter="todos">
+            <i class="fas fa-layer-group"></i> Todos
+        </button>
+        <button class="filter-btn" data-filter="anual">
+            <i class="far fa-calendar-alt"></i> Anuales
+        </button>
+        <button class="filter-btn" data-filter="permanente">
+            <i class="fas fa-sync-alt"></i> Permanentes
+        </button>
+        <button class="filter-btn" data-filter="especial">
+            <i class="fas fa-star"></i> Otros
+        </button>
+    </div>
+    <div class="search-wrapper">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Buscar seminario...">
+        <button id="searchBtn">Ir</button>
+    </div>
+</div>
+```
+
+<Columns cols={2}>
+  <Card title="Filter buttons" icon="filter">
+    Each button carries a `data-filter` attribute. The value matches the `tipo` field in the `seminarios` array (`'todos'`, `'anual'`, `'permanente'`, `'especial'`). The active button receives the `.active` class, switching it to a solid `#003B6F` background.
+  </Card>
+  <Card title="Search input" icon="magnifying-glass">
+    `#searchInput` fires the `input` event on every keystroke. There is no debouncing — `filtrar()` runs synchronously on each character change, which is adequate for a 31-item dataset.
+  </Card>
+</Columns>
+
+### Active button styles
+
+```css css/components.css
+.filter-btn {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 0.5rem 1.2rem;
+    border-radius: 30px;
+    font-weight: 600;
+    color: #003B6F;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.filter-btn.active {
+    background-color: #003B6F;
+    color: white;
+    border-color: #003B6F;
+}
+
+.filter-btn i        { color: #B38633; }
+.filter-btn.active i { color: white; }
+```
+
+## The `filtrar` function
+
+`filtrar()` reads the current state of both controls and delegates rendering to `renderCards()`:
+
+```javascript js/seminarios.js
+function filtrar() {
+    const active = document.querySelector('.filter-btn.active')?.dataset.filter || 'todos';
+    const term   = searchInput.value.toLowerCase();
+
+    const filtrados = seminarios.filter(s => {
+        const catMatch  = active === 'todos' || s.tipo === active;
+        const textMatch =
+            s.titulo.toLowerCase().includes(term)      ||
+            s.objetivo.toLowerCase().includes(term)    ||
+            s.responsable.toLowerCase().includes(term);
+
+        return catMatch && textMatch;
+    });
+
+    renderCards(filtrados);
+}
+```
+
+<AccordionGroup>
+  <Accordion title="Category match logic">
+    When `active` is `'todos'`, `catMatch` is always `true` and every seminar passes the category check. For any other value (`'anual'`, `'permanente'`, `'especial'`), the seminar's `tipo` field must match exactly.
+  </Accordion>
+  <Accordion title="Text match logic">
+    `term` is compared against three fields — `titulo`, `objetivo`, and `responsable` — using case-insensitive `includes`. A seminar passes if the term appears in **any** of the three fields. An empty search term matches every seminar because `''.includes('')` is always `true`.
+  </Accordion>
+  <Accordion title="Combined result">
+    Both conditions must be `true` simultaneously (`catMatch && textMatch`). Selecting **Anuales** and typing a keyword, for example, returns only annual seminars whose title, objective, or responsible person contains that keyword.
+  </Accordion>
+</AccordionGroup>
+
+## Event wiring
+
+```javascript js/seminarios.js
+// Category buttons: switch active class then filter
+filterBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        filtrar();
+    });
+});
+
+// Search input: filter on every keystroke
+searchInput.addEventListener('input', filtrar);
+```
+
+<Note>
+The `#searchBtn` ("Ir") button visible in the HTML has no dedicated event listener in `seminarios.js`. Filtering already happens on the `input` event, so pressing the button only submits the form's default action (none), leaving the current results in place.
+</Note>
+
+## Filter button reference
+
+| Button label | `data-filter` value | Seminars shown |
+|---|---|---|
+| Todos | `todos` | All 31 seminars |
+| Anuales | `anual` | 14 annual seminars |
+| Permanentes | `permanente` | 15 permanent seminars |
+| Otros | `especial` | 2 special seminars |
+
+<Tip>
+To add a new category, add a button with the appropriate `data-filter` value to the `.filter-group` in `reestructuracion.html` and use the matching string as the `tipo` value in the `seminarios` array in `js/seminarios.js`. No changes to `filtrar()` are needed.
+</Tip>

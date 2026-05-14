@@ -1,0 +1,258 @@
+---
+title: Customize colors, cards, toolbar, and typography
+description: Change brand colors, card styles, filter toolbar appearance, and typography by editing the CSS files loaded in reestructuracion.html.
+---
+
+The site's visual style is controlled entirely through five CSS files in the `css/` directory. There are no CSS custom properties (variables) in the current codebase — colors and values are hardcoded directly in the rules. This page documents where each visual property lives and how to change it.
+
+## Brand colors
+
+Two colors define the site's identity and appear throughout every CSS file:
+
+<CardGroup cols={2}>
+  <Card title="#003B6F — dark blue (primary)" icon="droplet">
+    Used for: section title text, card `h3` headings, filter button text and active state background, search button background, card tag background (anual), modal header background, form label color, card border on hover, `correo`/`telefono` pill text, `.card-areas` text, `.objetivo strong` text, fallback image background, `btn-submit` background.
+  </Card>
+  <Card title="#B38633 — gold (accent)" icon="droplet">
+    Used for: section title border-bottom, card top border, filter button icon color, search wrapper icon color, card tag background (especial), `btn-inscripcion` icon and arrow, `btn-toggle-texto` color, `.objetivo` left border, `.responsable` icon, `.correo`/`.telefono` icon, `btn-submit` icon, modal header icon, fallback image icon.
+  </Card>
+</CardGroup>
+
+To rebrand the site, search all files in `css/` for `#003B6F` and `#B38633` and replace them with your chosen colors. There is no single variable to update.
+
+## Changing the primary colors
+
+The color values appear most densely in `components.css`. Here are the key rules to update:
+
+```css
+/* components.css — filter button active state */
+.filter-btn.active {
+    background-color: #003B6F;   /* ← change to new primary */
+    color: white;
+    border-color: #003B6F;       /* ← change to new primary */
+}
+
+/* components.css — card top accent border */
+.seminario-card {
+    border-top: 4px solid #B38633;   /* ← change to new accent */
+}
+
+/* components.css — card tag colors */
+.card-tag {
+    background: #003B6F;   /* ← change to new primary (anual badge) */
+}
+.card-tag.especial {
+    background: #B38633;   /* ← change to new accent */
+    color: #003B6F;         /* ← change to new primary */
+}
+
+/* components.css — enrollment button */
+.btn-submit {
+    background: #003B6F;   /* ← change to new primary */
+}
+```
+
+You must also update `typography.css` for text and border colors:
+
+```css
+/* typography.css — section heading */
+.section-title {
+    color: #003B6F;                  /* ← heading text color */
+    border-bottom: 2px solid #B38633; /* ← underline accent color */
+}
+
+/* typography.css — card heading */
+.seminario-card h3 {
+    color: #003B6F;   /* ← card title color */
+}
+
+/* typography.css — objetivo left border */
+.objetivo {
+    border-left: 3px solid #B38633;   /* ← accent left border */
+}
+
+/* typography.css — "Ver más" toggle button */
+.btn-toggle-texto {
+    color: #B38633;   /* ← accent color */
+}
+```
+
+## Card styling
+
+Card visual properties are defined in `components.css` under `.seminario-card` and `.seminario-card:hover`:
+
+```css
+/* components.css */
+.seminario-card {
+    background: white;
+    border: 1px solid #e2e6ea;
+    border-radius: 20px;              /* ← corner rounding */
+    box-shadow: 0 8px 18px rgba(0,59,111,0.05);  /* ← resting shadow */
+    transition: all 0.2s ease;
+    border-top: 4px solid #B38633;    /* ← top accent stripe */
+}
+
+.seminario-card:hover {
+    transform: translateY(-4px);      /* ← lift amount on hover */
+    box-shadow: 0 16px 28px rgba(0,59,111,0.12);  /* ← hover shadow */
+    border-color: #003B6F;            /* ← full border color on hover */
+}
+```
+
+To make cards look flatter, reduce or remove `box-shadow`. To reduce the hover lift, lower the `translateY` value or set it to `0`. To make corners sharper, reduce `border-radius` from `20px`.
+
+The card image area is controlled by `.card-img`:
+
+```css
+/* components.css */
+.card-img {
+    width: 100%;
+    height: 160px;       /* ← change to adjust image height */
+    object-fit: cover;
+}
+```
+
+## Filter toolbar customization
+
+The toolbar bar and its buttons are in `components.css`:
+
+```css
+/* components.css */
+.filter-toolbar {
+    background: #f0f3f7;
+    padding: 0.8rem 1.5rem;
+    border-radius: 40px;   /* ← pill shape; reduce to square */
+}
+
+.filter-btn {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 0.5rem 1.2rem;
+    border-radius: 30px;    /* ← button pill shape */
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #003B6F;
+}
+
+.filter-btn.active {
+    background-color: #003B6F;
+    color: white;
+    border-color: #003B6F;
+}
+```
+
+The search input wrapper uses the same pill style:
+
+```css
+/* components.css */
+.search-wrapper {
+    background: white;
+    border-radius: 30px;
+    border: 1px solid #ccc;
+    min-width: 240px;
+}
+
+.search-wrapper button {
+    background: #003B6F;
+    border-radius: 30px;
+    font-weight: 600;
+}
+```
+
+## Typography customization
+
+Font sizes and weights are split across `typography.css`. The key rules:
+
+```css
+/* typography.css */
+.section-title {
+    font-size: 2rem;     /* ← page heading size */
+    font-weight: 700;
+}
+
+.seminario-card h3 {
+    font-size: 1.3rem;   /* ← card title size */
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.objetivo {
+    font-size: 0.9rem;   /* ← objective body text */
+    color: #2d3e50;
+}
+
+.responsable {
+    font-size: 0.9rem;
+}
+
+.correo, .telefono {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.btn-toggle-texto {
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+```
+
+Filter button and search input text size is set in `components.css`:
+
+```css
+/* components.css */
+.filter-btn   { font-size: 0.9rem; }
+.search-wrapper input { font-size: 0.9rem; }
+```
+
+## Changing the font
+
+The site loads **Open Sans** (weights 400, 600, 700) from Google Fonts. The import is in `reestructuracion.html`:
+
+```html
+<!-- reestructuracion.html -->
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+```
+
+The font is applied globally in `reset.css`:
+
+```css
+/* reset.css */
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+```
+
+And explicitly repeated on form inputs in `components.css`:
+
+```css
+/* components.css */
+.search-wrapper input {
+    font-family: 'Open Sans', sans-serif;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+    font-family: 'Open Sans', sans-serif;
+}
+.btn-submit {
+    font-family: 'Open Sans', sans-serif;
+}
+```
+
+To switch to a different Google Font — for example, **Inter** — update the `<link>` tag in `reestructuracion.html` and replace all occurrences of `'Open Sans'` in the CSS files:
+
+```html
+<!-- reestructuracion.html — updated link -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+```
+
+```css
+/* reset.css — updated rule */
+body {
+    font-family: 'Inter', sans-serif;
+}
+```
+
+<Note>
+  If you switch fonts, update every `font-family: 'Open Sans', sans-serif` declaration in `components.css` as well, otherwise form inputs will retain the old font.
+</Note>

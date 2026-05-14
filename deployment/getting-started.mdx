@@ -1,0 +1,138 @@
+---
+title: 'Run the site locally — browser, Python, or Live Server'
+description: 'Run the Seminarios y Eventos UIM site locally in under a minute — no Node.js, no build step, just a browser or any static file server.'
+---
+
+The project is a purely static site: `reestructuracion.html` is the single entry point, backed by local CSS files in `css/` and one JavaScript file at `js/seminarios.js`. No package manager, no compilation, and no environment variables are required to get it running.
+
+## Prerequisites
+
+<CardGroup cols={2}>
+  <Card title="Web browser" icon="globe">
+    Any modern browser (Chrome, Firefox, Safari, Edge). Required for the `file://` option below.
+  </Card>
+  <Card title="Static file server" icon="server">
+    Python 3 (ships with most systems), VS Code with Live Server, or any HTTP server. Required only for the served options.
+  </Card>
+</CardGroup>
+
+<Note>
+  No Node.js, npm, or build tools are needed. The site ships ready to open.
+</Note>
+
+## External CDN dependencies
+
+Two external resources are loaded from CDNs inside the `<head>` of `reestructuracion.html`:
+
+```html
+<!-- Google Fonts – Open Sans -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+<!-- Font Awesome 6.0.0-beta3 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+```
+
+<Warning>
+  Both resources require an active internet connection. In a fully offline environment, Open Sans falls back to the browser's default sans-serif font, and Font Awesome icons are replaced by blank squares or Unicode fallbacks. All layout and functionality remain intact.
+</Warning>
+
+## Setup
+
+<Steps>
+  <Step title="Clone or download the repository">
+    ```bash
+    git clone https://github.com/val20-11/Pagina-de-Seminarios-y-Eventos-UIM.git
+    cd Pagina-de-Seminarios-y-Eventos-UIM
+    ```
+  </Step>
+  <Step title="Choose a serving option">
+    Pick one of the three options below based on what you already have installed.
+  </Step>
+  <Step title="Open the site in your browser">
+    Navigate to the URL shown for your chosen option and confirm the seminars grid loads correctly.
+  </Step>
+</Steps>
+
+## Serving options
+
+<Tabs>
+  <Tab title="Open directly (file://)">
+    The simplest approach — no server required.
+
+    Double-click `reestructuracion.html` in your file manager, or drag it into a browser window. The browser opens it using the `file://` protocol.
+
+    ```bash
+    # macOS
+    open reestructuracion.html
+
+    # Linux
+    xdg-open reestructuracion.html
+
+    # Windows (PowerShell)
+    Start-Process reestructuracion.html
+    ```
+
+    <Tip>
+      The `file://` protocol works for everything in this project because all CSS and JS paths are relative (e.g., `css/reset.css`, `js/seminarios.js`). CDN resources still require internet access.
+    </Tip>
+  </Tab>
+  <Tab title="Python HTTP server">
+    Python 3 ships a built-in HTTP server that serves the current directory over `localhost`.
+
+    ```bash
+    python3 -m http.server 8000
+    ```
+
+    Then open your browser at:
+
+    ```
+    http://localhost:8000/reestructuracion.html
+    ```
+
+    Stop the server at any time with `Ctrl+C`.
+
+    <Note>
+      If port `8000` is already in use, pass a different port number: `python3 -m http.server 9000`.
+    </Note>
+  </Tab>
+  <Tab title="VS Code Live Server">
+    The [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension reloads the browser automatically whenever you save a file — useful when editing CSS or JS.
+
+    <Steps>
+      <Step title="Install the extension">
+        Open VS Code, go to the Extensions panel (`Ctrl+Shift+X`), and search for **Live Server** by Ritwick Dey. Click **Install**.
+      </Step>
+      <Step title="Open the project folder">
+        Use **File → Open Folder** and select the `Pagina-de-Seminarios-y-Eventos-UIM` directory.
+      </Step>
+      <Step title="Launch the server">
+        Right-click `reestructuracion.html` in the Explorer panel and choose **Open with Live Server**, or click the **Go Live** button in the status bar.
+      </Step>
+    </Steps>
+
+    Live Server opens the page automatically at:
+
+    ```
+    http://127.0.0.1:5500/reestructuracion.html
+    ```
+  </Tab>
+</Tabs>
+
+## Project file structure
+
+```
+Pagina-de-Seminarios-y-Eventos-UIM/
+├── reestructuracion.html   # Entry point
+├── css/
+│   ├── reset.css
+│   ├── layout.css
+│   ├── components.css
+│   ├── typography.css
+│   └── utilities.css
+└── js/
+    └── seminarios.js       # Seminar data and all UI logic
+```
+
+All seminar data — titles, objectives, coordinators, contact details, and area tags — is defined as a JavaScript array inside `js/seminarios.js`. No database or API calls are made at runtime.

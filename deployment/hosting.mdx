@@ -1,0 +1,200 @@
+---
+title: 'Deploy to GitHub Pages, Netlify, Vercel, or a web server'
+description: 'Deploy the Seminarios y Eventos UIM static site to GitHub Pages, Netlify, Vercel, or any Apache/Nginx server — no build step required.'
+---
+
+Because the site is entirely static — one HTML file, five CSS files, and one JavaScript file — it can be hosted on any platform that serves static files. There is no build step, no environment variables to configure, and no server-side runtime required.
+
+## Key deployment facts
+
+<CardGroup cols={2}>
+  <Card title="No build step" icon="circle-check">
+    Upload the files as-is. There is nothing to compile or bundle.
+  </Card>
+  <Card title="No environment variables" icon="circle-check">
+    The site has zero runtime configuration. No `.env` file is needed.
+  </Card>
+  <Card title="Relative paths throughout" icon="circle-check">
+    Assets use relative paths (`css/reset.css`, `js/seminarios.js`), so the site works correctly when served from a subdirectory.
+  </Card>
+  <Card title="CDN dependencies" icon="triangle-exclamation">
+    Google Fonts and Font Awesome are loaded from CDNs. Visitors need internet access for fonts and icons to render correctly.
+  </Card>
+</CardGroup>
+
+## External dependencies in `reestructuracion.html`
+
+The following CDN links are declared in the `<head>` of `reestructuracion.html` and are fetched at page load time by each visitor's browser:
+
+```html
+<!-- Google Fonts – Open Sans (400, 600, 700) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+<!-- Font Awesome 6.0.0-beta3 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+```
+
+<Note>
+  These links are not bundled locally. If you need the site to work in a restricted-network environment, download and host both resources alongside the other static files, then update the `href` values accordingly.
+</Note>
+
+## Deployment platforms
+
+<AccordionGroup>
+  <Accordion title="GitHub Pages" icon="github" defaultOpen={true}>
+    The project is already hosted on GitHub, making GitHub Pages the most straightforward option.
+
+    <Steps>
+      <Step title="Push the repository to GitHub">
+        If you have not already done so:
+
+        ```bash
+        git remote add origin https://github.com/<your-username>/Pagina-de-Seminarios-y-Eventos-UIM.git
+        git push -u origin main
+        ```
+      </Step>
+      <Step title="Enable GitHub Pages in repository settings">
+        1. Go to your repository on GitHub.
+        2. Click **Settings → Pages**.
+        3. Under **Build and deployment**, set **Source** to **Deploy from a branch**.
+        4. Set the branch to `main` and the folder to `/ (root)`.
+        5. Click **Save**.
+      </Step>
+      <Step title="Access the published site">
+        GitHub Pages builds and publishes within a few minutes. The site is available at:
+
+        ```
+        https://<your-username>.github.io/Pagina-de-Seminarios-y-Eventos-UIM/reestructuracion.html
+        ```
+      </Step>
+    </Steps>
+
+    <Tip>
+      To serve the site at the root URL without `/reestructuracion.html` in the path, rename `reestructuracion.html` to `index.html` before pushing — GitHub Pages serves `index.html` automatically.
+    </Tip>
+  </Accordion>
+
+  <Accordion title="Netlify (drag and drop)" icon="globe">
+    Netlify's drag-and-drop deploy requires no CLI and no account linking.
+
+    <Steps>
+      <Step title="Log in to Netlify">
+        Go to [app.netlify.com](https://app.netlify.com) and sign in or create a free account.
+      </Step>
+      <Step title="Open the drop zone">
+        On the **Sites** tab, scroll to the bottom to find the **Drop a folder here to deploy** area.
+      </Step>
+      <Step title="Drag the project folder">
+        Drag the entire `Pagina-de-Seminarios-y-Eventos-UIM/` folder into the drop zone. Netlify uploads and deploys all files instantly.
+      </Step>
+      <Step title="Access the deployed site">
+        Netlify assigns a random subdomain such as:
+
+        ```
+        https://random-name-123456.netlify.app/reestructuracion.html
+        ```
+
+        You can assign a custom domain in **Site settings → Domain management**.
+      </Step>
+    </Steps>
+  </Accordion>
+
+  <Accordion title="Vercel" icon="triangle">
+    Vercel can deploy directly from GitHub or via its CLI.
+
+    <Tabs>
+      <Tab title="Via CLI">
+        <Steps>
+          <Step title="Install the Vercel CLI">
+            ```bash
+            npm install -g vercel
+            ```
+          </Step>
+          <Step title="Run the deploy command from the project folder">
+            ```bash
+            vercel
+            ```
+
+            Accept the defaults when prompted. Vercel detects a static site automatically and skips any build step.
+          </Step>
+          <Step title="Open the deployed URL">
+            The CLI prints the production URL on completion:
+
+            ```
+            https://pagina-de-seminarios-y-eventos-uim.vercel.app
+            ```
+          </Step>
+        </Steps>
+      </Tab>
+      <Tab title="Via web UI">
+        <Steps>
+          <Step title="Import the GitHub repository">
+            Go to [vercel.com/new](https://vercel.com/new) and click **Import** next to your `Pagina-de-Seminarios-y-Eventos-UIM` repository.
+          </Step>
+          <Step title="Leave build settings blank">
+            No framework preset, no build command, no output directory. Click **Deploy**.
+          </Step>
+          <Step title="Access the site">
+            Vercel deploys in seconds and provides a `*.vercel.app` URL. Subsequent pushes to `main` trigger automatic redeployments.
+          </Step>
+        </Steps>
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+  <Accordion title="Apache or Nginx web server" icon="server">
+    For self-hosted or institutional servers (common in university environments), copy the project files to the web root or a virtual host directory.
+
+    **Apache**
+
+    ```bash
+    # Copy files to the Apache document root (adjust path for your distribution)
+    sudo cp -r Pagina-de-Seminarios-y-Eventos-UIM/ /var/www/html/seminarios/
+    ```
+
+    The site is then accessible at:
+
+    ```
+    http://your-server/seminarios/reestructuracion.html
+    ```
+
+    **Nginx**
+
+    ```bash
+    # Copy files to the Nginx document root
+    sudo cp -r Pagina-de-Seminarios-y-Eventos-UIM/ /usr/share/nginx/html/seminarios/
+    ```
+
+    Add a minimal server block to your Nginx configuration if you need a dedicated virtual host:
+
+    ```bash
+    server {
+        listen 80;
+        server_name seminarios.example.com;
+        root /usr/share/nginx/html/seminarios;
+        index reestructuracion.html;
+    }
+    ```
+
+    Then reload Nginx:
+
+    ```bash
+    sudo nginx -s reload
+    ```
+
+    <Note>
+      No special MIME types or rewrite rules are required. Apache and Nginx serve `.html`, `.css`, and `.js` files correctly out of the box.
+    </Note>
+  </Accordion>
+</AccordionGroup>
+
+## Summary
+
+| Platform | Requires CLI | Automatic deploys on push | Free tier |
+|---|---|---|---|
+| GitHub Pages | No | Yes (via Actions) | Yes |
+| Netlify drop | No | No (manual upload) | Yes |
+| Vercel CLI | Yes (`vercel`) | Yes (after linking) | Yes |
+| Apache / Nginx | No | No | Self-hosted |

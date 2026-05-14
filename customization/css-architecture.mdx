@@ -1,0 +1,208 @@
+---
+title: CSS architecture — five files, their roles, and load order
+description: Understand the five-file modular CSS structure, what each file owns, the load order declared in reestructuracion.html, and why that order is required.
+---
+
+Rather than a single monolithic stylesheet, the site splits its CSS across five focused files. Each file has a single, clearly bounded responsibility. This makes it easy to locate a style rule without scanning thousands of lines and reduces the risk of unintended overrides when editing one area of the UI.
+
+## Load order in reestructuracion.html
+
+The five files are linked in the `<head>` of `reestructuracion.html` in this exact order:
+
+```html
+<!-- reestructuracion.html -->
+<link rel="stylesheet" href="css/reset.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/typography.css">
+<link rel="stylesheet" href="css/utilities.css">
+```
+
+<Note>
+  Order matters because CSS applies rules in document order. `reset.css` must come first so its margin/padding zeroing is in effect before layout rules run. `typography.css` comes after `components.css` so that text styles declared on `.seminario-card h3` or `.objetivo` can safely override any incidental font rules set on a component's container.
+</Note>
+
+## File responsibilities
+
+<AccordionGroup>
+  <Accordion title="reset.css — baseline normalization">
+    Applies the universal box model reset and sets the site's global font and background. Everything else in the stylesheet assumes `box-sizing: border-box` is active.
+
+    ```css
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    body {
+        font-family: 'Open Sans', sans-serif;
+        background: #e9ecf0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    ```
+
+    **What it resets:** default browser margins and padding on every element; the box model (switches all elements to `border-box`).
+
+    **What it sets:** the site-wide font (`Open Sans`), the page background color (`#e9ecf0`), and centers the page content vertically using flexbox.
+  </Accordion>
+
+  <Accordion title="layout.css — structural containers and the responsive grid">
+    Controls how the page's top-level containers are sized and arranged, and defines the responsive card grid.
+
+    ```css
+    .site-wrapper {
+        max-width: 1280px;
+        width: 100%;
+        background: white;
+        box-shadow: 0 10px 25px rgba(0,59,111,0.2);
+    }
+
+    .seminarios-section {
+        padding: 2rem 2rem 3rem;
+    }
+
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 1.8rem;
+        margin-top: 1.5rem;
+    }
+
+    @media (max-width: 700px) {
+        .filter-toolbar { flex-direction: column; align-items: stretch; }
+    }
+    ```
+
+    **Classes owned:**
+
+    | Class | Responsibility |
+    |---|---|
+    | `.site-wrapper` | Caps page width at 1280 px, centers on the page, adds the blue-tinted drop shadow |
+    | `.seminarios-section` | Inner padding around the heading, toolbar, and card grid |
+    | `.cards-grid` | Auto-filling grid; cards are minimum 360 px wide, growing to fill columns |
+
+    **Responsive breakpoint:** at 700 px and below, `.filter-toolbar` stacks vertically so filter buttons and the search input do not overflow.
+  </Accordion>
+
+  <Accordion title="components.css — every interactive UI component">
+    The largest file (347 lines). Owns the visual style of discrete, reusable UI pieces: the filter toolbar, filter buttons, the search wrapper, seminar cards, the registration modal, form elements, and action buttons.
+
+    **Key component blocks:**
+
+    | Selector(s) | What it styles |
+    |---|---|
+    | `.filter-toolbar` | Pill-shaped toolbar bar (`border-radius: 40px`, `background: #f0f3f7`) |
+    | `.filter-btn` | Individual filter pills; `.filter-btn.active` fills with `#003B6F` |
+    | `.search-wrapper` | Pill-shaped search bar containing icon, input, and submit button |
+    | `.seminario-card` | Card container: `border-radius: 20px`, `box-shadow`, gold `border-top: 4px solid #B38633`, hover lift |
+    | `.card-tag` | Category badge (Anual/Permanente/Seminario); `.card-tag.permanente` and `.card-tag.especial` override the default `#003B6F` background |
+    | `.card-areas span` | Knowledge-area pill tags on each card |
+    | `.card-img` / `.card-img-fallback` | 160 px tall header image; fallback dark blue block with icon |
+    | `.btn-inscripcion` | Enrollment call-to-action button (`border-radius: 12px`, dark blue) |
+    | `.modal-overlay` / `.modal-content` | Full-screen overlay and centered modal dialog |
+    | `.modal-header` | Dark blue header bar of the modal |
+    | `.form-group` / `input` / `select` / `textarea` | Registration form layout and input styling |
+    | `.btn-submit` | Pill-shaped (`border-radius: 40px`) form submit button |
+
+    Example — card hover effect:
+
+    ```css
+    .seminario-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 28px rgba(0,59,111,0.12);
+        border-color: #003B6F;
+    }
+    ```
+
+    Example — modal entrance animation:
+
+    ```css
+    @keyframes modalIn {
+        from { transform: translateY(-20px); opacity: 0; }
+        to   { transform: translateY(0);     opacity: 1; }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="typography.css — all text and type-level styles">
+    Owns font sizes, weights, colors, and spacing for every text element. By separating these rules, you can restyle the page's typography without touching component structure.
+
+    **Selector overview:**
+
+    | Selector | Role |
+    |---|---|
+    | `.section-title` | Page heading (`2rem`, `700`, `#003B6F`); gold underline via `border-bottom: 2px solid #B38633` |
+    | `.seminario-card h3` | Card title (`1.3rem`, `700`, `#003B6F`, `line-height: 1.4`) |
+    | `.objetivo` | Objective block: `0.9rem`, `#2d3e50`, left gold border, `background: #fafafa` |
+    | `.card-objetivo` | Three-line clamp using `-webkit-line-clamp: 3`; `.card-objetivo.expandido` removes the clamp |
+    | `.btn-toggle-texto` | "Ver más / Ver menos" inline button (`#B38633`, `700`, no border) |
+    | `.responsable` | Instructor name row (`0.9rem`, flex with icon) |
+    | `.correo`, `.telefono` | Contact pill badges (`0.85rem`, `#003B6F`, `font-weight: 600`, `border-radius: 40px`) |
+
+    Example — objective left-border block:
+
+    ```css
+    .objetivo {
+        font-size: 0.9rem;
+        color: #2d3e50;
+        margin: 0.8rem 0 1rem;
+        border-left: 3px solid #B38633;
+        background: #fafafa;
+        padding: 0.8rem 1rem;
+        border-radius: 0 8px 8px 0;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+    }
+    ```
+
+    Example — text truncation and expand toggle:
+
+    ```css
+    .card-objetivo {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .card-objetivo.expandido {
+        -webkit-line-clamp: unset;
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="utilities.css — utility classes">
+    `utilities.css` is present in the load order and linked in `reestructuracion.html` but currently contains no rules (the file is empty). It is reserved for single-purpose utility classes — spacing helpers, visibility toggles, or other context-free overrides — that do not belong to any specific component or layout concern.
+
+    Add utility classes here rather than scattering one-off overrides across the other files.
+  </Accordion>
+</AccordionGroup>
+
+## Why splitting across files matters
+
+Keeping rules in their designated file prevents a common class of bugs in static CSS projects:
+
+- **Specificity creep** — layout rules that accidentally override type styles (or vice versa) are easier to spot when the files are separate.
+- **Safe editing** — a designer changing card typography can edit `typography.css` without risking a breakage in the grid or modal.
+- **Onboarding** — a new contributor looking for "why does the card lift on hover?" knows to open `components.css`, not scan a 500-line monolith.
+
+<Tip>
+  If you add inline `<style>` blocks directly in `reestructuracion.html` (as the existing file already does for the account-number field transition and user-type badge), those rules apply after all five linked files and will override anything in the CSS files with equal specificity. Keep inline styles minimal and document why they exist.
+</Tip>
+
+## Adding a new CSS file
+
+If the project grows and you need a sixth file (for example, `animations.css`):
+
+1. Create `css/animations.css`.
+2. Add a new `<link>` tag in `reestructuracion.html` after `utilities.css`:
+
+   ```html
+   <link rel="stylesheet" href="css/utilities.css">
+   <link rel="stylesheet" href="css/animations.css">
+   ```
+
+3. Place only animation-related rules (`@keyframes`, `transition`, `animation`) in the new file to preserve the single-responsibility principle.

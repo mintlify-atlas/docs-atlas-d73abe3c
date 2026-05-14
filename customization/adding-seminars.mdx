@@ -1,0 +1,160 @@
+---
+title: Adding, editing, and removing seminars from the catalog
+description: Learn how to manage the seminarios array in js/seminarios.js — the sole data source that controls every seminar card rendered on the page.
+---
+
+All seminar data lives in a single JavaScript array declared at the top of `js/seminarios.js`. There is no database, no API, and no CMS. To add, edit, or remove a seminar you edit that file directly and save — the page reflects the change immediately on next load.
+
+## Seminar object structure
+
+Each entry in the `seminarios` array is a plain JavaScript object with the following fields:
+
+```javascript
+{
+    tipo:        'anual',                          // 'anual' | 'permanente' | 'especial'
+    titulo:      'Título completo del seminario',  // string — required
+    objetivo:    'Descripción del objetivo...',    // string — required
+    responsable: 'Dr. Nombre Apellido',            // string — required
+    correo:      'correo@acatlan.unam.mx',         // string — omit or leave '' to hide
+    telefono:    '5623-1750, ext. 38963',          // string — omit or leave '' to hide
+    areas:       ['Área 1', 'Área 2'],             // string[] — tags shown on the card
+    imagen:      'img/mi-seminario.jpg'            // string — optional; falls back to placeholder
+}
+```
+
+### Field reference
+
+<AccordionGroup>
+  <Accordion title="tipo">
+    Controls the category badge rendered on the card and which filter button shows the seminar. Must be one of three exact string values:
+
+    | Value | Badge label | Badge color | Filter button |
+    |---|---|---|---|
+    | `'anual'` | ANUAL | `#003B6F` dark blue | Anuales |
+    | `'permanente'` | PERMANENTE | `#1f4b7a` medium blue | Permanentes |
+    | `'especial'` | SEMINARIO | `#B38633` gold (text `#003B6F`) | Otros |
+
+    The value also determines which placeholder image is used when `imagen` is absent (see below).
+  </Accordion>
+  <Accordion title="titulo">
+    The full seminar title. Rendered as the card `<h3>` and pre-selected in the registration modal's dropdown. Keep it accurate — the modal's seminar selector is populated directly from this field.
+  </Accordion>
+  <Accordion title="objetivo">
+    A description of the seminar's goal. Displayed inside a left-bordered block on the card. Long text is clamped to three lines with a "Ver más / Ver menos" toggle button generated automatically. No HTML is needed.
+  </Accordion>
+  <Accordion title="responsable">
+    The name of the person responsible for the seminar. Rendered with a user icon. Required — there is no conditional check; an empty string will render an empty row.
+  </Accordion>
+  <Accordion title="correo">
+    Email address of the contact. Rendered with an envelope icon inside a pill badge. Set to an empty string (`''`) or omit the field to hide the row entirely — the rendering code checks `if (s.correo)` before outputting HTML.
+  </Accordion>
+  <Accordion title="telefono">
+    Phone number, including extensions if needed. Rendered with a phone icon inside a pill badge. Same conditional logic as `correo` — an empty string hides the row.
+  </Accordion>
+  <Accordion title="areas">
+    An array of knowledge-area strings. Each string becomes a small pill tag on the card, preceded by a tag icon. You can include as many areas as needed. Example from the source:
+
+    ```javascript
+    areas: ['Derecho', 'Derechos Humanos']
+    ```
+
+    To show no area tags, pass an empty array: `areas: []`.
+  </Accordion>
+  <Accordion title="imagen">
+    A path or URL to the card's header image. The image is displayed at full width with `height: 160px` and `object-fit: cover`. This field is **optional**. When omitted (or when the URL returns a 404), the card falls back to a type-specific placeholder:
+
+    | tipo | Placeholder URL |
+    |---|---|
+    | `'anual'` | `https://via.placeholder.com/400x160/003B6F/ffffff?text=Seminario+Anual` |
+    | `'permanente'` | `https://via.placeholder.com/400x160/1f4b7a/ffffff?text=Seminario+Permanente` |
+    | `'especial'` | `https://via.placeholder.com/400x160/B38633/003B6F?text=Seminario` |
+
+    If the image fails to load entirely, a fallback `<div>` with a chalkboard icon on a dark blue background is displayed.
+  </Accordion>
+</AccordionGroup>
+
+## Real examples from the source
+
+Below are two entries taken directly from `js/seminarios.js` to illustrate different configurations:
+
+<Tabs>
+  <Tab title="Anual (no correo, no imagen)">
+    ```javascript
+    {
+        tipo: 'anual',
+        titulo: 'Sociología etnográfica',
+        objetivo: 'Realizar una propuesta en torno al uso crítico de la teoría y las técnicas de investigación en el trabajo de campo. Estudiar la dinámica institucional al interior de un hospital general de urgencias médicas. Y estudiar el papel de la teoría social en la conformación del sujeto delincuente.',
+        responsable: 'Dr. Víctor Alejandro Payá Porres',
+        correo: '',
+        telefono: '',
+        areas: ['Sociología', 'Etnografía']
+    }
+    ```
+  </Tab>
+  <Tab title="Especial (con teléfono)">
+    ```javascript
+    {
+        tipo: 'especial',
+        titulo: 'Seminario "En la mirada de otros"',
+        objetivo: 'Grupo de estudio sobre el retrato literario en México desde el siglo XVI al XXI en que se reflexiona y se escribe sobre los históricos, sociológicos y literarios de la construcción de la vida de artistas (particularmente escritores) mexicanos en diferentes tipos escritura: semblanza, retrato, biografía, esquela.',
+        responsable: 'Lic. Miguel Ángel de la Calleja',
+        correo: '',
+        telefono: '5623-1750, ext. 38963 y 38958',
+        areas: ['Literatura', 'Historia']
+    }
+    ```
+  </Tab>
+  <Tab title="Con correo">
+    ```javascript
+    {
+        tipo: 'anual',
+        titulo: 'La Justiciabilidad de los Derechos Económicos, Sociales y Culturales',
+        objetivo: 'Justiciabilidad de los DESCA: fundamentar los derechos económicos, sociales y culturales...',
+        responsable: 'Dr. Christian Miguel Acosta García',
+        correo: '869546@pcpuma.acatlan.unam.mx',
+        telefono: '',
+        areas: ['Derecho', 'Derechos Humanos']
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## How to add a new seminar
+
+<Warning>
+  `seminarios.js` uses a plain JavaScript array literal — not JSON. Property keys are unquoted and string values use single quotes. Do not wrap keys in double quotes and do not add a trailing comma after the last object in the array.
+</Warning>
+
+<Steps>
+  <Step title="Open js/seminarios.js">
+    Open `js/seminarios.js` in your editor. The `seminarios` array starts on line 2 and ends before the closing `];` on line 37.
+  </Step>
+  <Step title="Choose where to insert">
+    Entries are grouped by type with comments: `// Anuales`, `// Permanentes`, and `// Otros`. Insert your new object inside the appropriate group. Add a comma after the preceding object.
+  </Step>
+  <Step title="Write the object">
+    Copy the template below, fill in your values, and paste it into the array:
+
+    ```javascript
+    { tipo: 'permanente', titulo: 'Seminario permanente de Economía del Comportamiento', objetivo: 'Analizar los fundamentos teóricos de la economía del comportamiento y su aplicación en el diseño de políticas públicas, promoviendo la investigación empírica sobre sesgos cognitivos y toma de decisiones en contextos mexicanos.', responsable: 'Dra. Andrea Fuentes Molina', correo: 'afuentes@acatlan.unam.mx', telefono: '', areas: ['Economía', 'Psicología', 'Políticas Públicas'] }
+    ```
+  </Step>
+  <Step title="Verify the array syntax">
+    Every object in the array except the last must be followed by a comma. The last object must not have a trailing comma. Check that the outer `];` that closes the array is still intact.
+  </Step>
+  <Step title="Save and reload">
+    Save the file and open or refresh `reestructuracion.html` in a browser. The new card will appear immediately. Use the filter buttons and search bar to confirm it is categorized correctly.
+  </Step>
+</Steps>
+
+## How to edit an existing seminar
+
+Locate the object by searching for its `titulo` value, then update any fields you need. You can change `tipo` to move a seminar to a different filter category — just make sure the value is one of `'anual'`, `'permanente'`, or `'especial'`.
+
+## How to remove a seminar
+
+Delete the entire object (from the opening `{` to the closing `}`) along with its trailing comma. Verify that the object before the deleted entry no longer has an orphaned trailing comma if it was the last in the array.
+
+<Tip>
+  The registration modal's seminar dropdown (`<select id="modalSeminario">`) is populated automatically by iterating over the `seminarios` array. Adding or removing an entry here updates the dropdown with no additional changes needed.
+</Tip>

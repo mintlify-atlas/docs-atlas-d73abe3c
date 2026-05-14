@@ -1,0 +1,52 @@
+{
+  "projectType": "frontend",
+  "projectName": "Seminarios y Eventos UIM – FES Acatlán",
+  "projectDescription": "A static web page for FES Acatlán (UNAM) that lists and filters research seminars, allowing users to browse annual, permanent, and special seminars and submit enrollment requests.",
+  "theme": "almond",
+  "primaryColor": "#003B6F",
+  "lightColor": "#e8f0f8",
+  "darkColor": "#B38633",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": ["introduction", "project-structure"]
+          },
+          {
+            "group": "Features",
+            "pages": ["features/seminar-catalog", "features/filtering-search", "features/enrollment-form"]
+          },
+          {
+            "group": "Customization",
+            "pages": ["customization/adding-seminars", "customization/styling", "customization/css-architecture"]
+          },
+          {
+            "group": "Deployment",
+            "pages": ["deployment/getting-started", "deployment/hosting"]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Seminar catalog with card-based layout displaying annual, permanent, and special seminars",
+    "Category filter buttons (All, Annual, Permanent, Special) with real-time filtering",
+    "Full-text search across seminar title, objective, and responsible researcher",
+    "Enrollment modal form with user type detection (internal FES Acatlán vs external)",
+    "Conditional account number field that appears only for internal users",
+    "Expandable seminar objective text with 'Ver más / Ver menos' toggle",
+    "Responsive CSS grid layout adapting to different screen sizes",
+    "Modular CSS architecture split across reset, layout, components, typography, and utilities"
+  ],
+  "publicApiSurface": [
+    "seminarios[] data array in js/seminarios.js — add/edit seminar objects here",
+    "Seminar object fields: tipo, titulo, objetivo, responsable, correo, telefono, areas, imagen",
+    "tipo values: 'anual' | 'permanente' | 'especial'",
+    "CSS custom colors: #003B6F (primary blue), #B38633 (gold accent)",
+    "HTML entry point: reestructuracion.html",
+    "CSS files: css/reset.css, css/layout.css, css/components.css, css/typography.css, css/utilities.css"
+  ]
+}

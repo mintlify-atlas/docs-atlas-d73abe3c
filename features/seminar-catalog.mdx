@@ -1,0 +1,193 @@
+---
+title: 'Seminar card catalog — data, rendering, and anatomy'
+description: 'How the 31 research seminars are stored as JavaScript objects and rendered dynamically as interactive cards on the FES Acatlán seminars page.'
+---
+
+The catalog page draws its content entirely from a `seminarios` array defined in `js/seminarios.js`. On page load, `renderCards()` iterates over that array and injects one `.seminario-card` element per seminar into `#cardsContainer`. There is no server or database involved — the full dataset lives in the JavaScript file.
+
+## Data structure
+
+Each entry in the `seminarios` array is a plain object with eight fields:
+
+```javascript js/seminarios.js
+{ tipo: 'anual',
+  titulo: 'La Justiciabilidad de los Derechos Económicos, Sociales y Culturales',
+  objetivo: 'Justiciabilidad de los DESCA: fundamentar los derechos económicos, sociales y culturales…',
+  responsable: 'Dr. Christian Miguel Acosta García',
+  correo: '869546@pcpuma.acatlan.unam.mx',
+  telefono: '',
+  areas: ['Derecho', 'Derechos Humanos'],
+  imagen: undefined   // omitted when no custom image is provided
+}
+```
+
+<AccordionGroup>
+  <Accordion title="Field reference">
+    | Field | Type | Required | Notes |
+    |---|---|---|---|
+    | `tipo` | string | Yes | `'anual'`, `'permanente'`, or `'especial'` |
+    | `titulo` | string | Yes | Displayed as the card heading |
+    | `objetivo` | string | Yes | Truncated by default; expandable |
+    | `responsable` | string | Yes | Faculty member or coordinator name |
+    | `correo` | string | No | Left empty (`''`) when unavailable |
+    | `telefono` | string | No | Left empty (`''`) when unavailable |
+    | `areas` | string[] | Yes | Knowledge areas shown as pill tags |
+    | `imagen` | string | No | URL; falls back to a placeholder when absent |
+  </Accordion>
+</AccordionGroup>
+
+## Seminar types
+
+Three `tipo` values are recognised. Each maps to a distinct badge style on the card.
+
+<Columns cols={3}>
+  <Card title="Anual" icon="calendar-alt">
+    Badge background: `#003B6F` (dark blue). Label text: **Anual**. CSS class: `.card-tag` (no modifier).
+  </Card>
+  <Card title="Permanente" icon="sync-alt">
+    Badge background: `#1f4b7a` (darker blue). Label text: **Permanente**. CSS class: `.card-tag.permanente`.
+  </Card>
+  <Card title="Especial / Otros" icon="star">
+    Badge background: `#B38633` (gold), text `#003B6F`. Label text: **Seminario**. CSS class: `.card-tag.especial`.
+  </Card>
+</Columns>
+
+```css css/components.css
+.card-tag {
+    display: inline-block;
+    background: #003B6F;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.25rem 1rem;
+    border-radius: 20px;
+    text-transform: uppercase;
+}
+
+.card-tag.permanente { background-color: #1f4b7a; }
+.card-tag.especial   { background: #B38633; color: #003B6F; }
+```
+
+## Card anatomy
+
+The `renderCards()` function builds each card's inner HTML in this order:
+
+<Steps>
+  <Step title="Header image">
+    `<img class="card-img">` loaded from `s.imagen`. If the field is absent the `placeholders` map supplies a coloured placeholder URL. If the URL fails to load, an `onerror` handler hides the image and shows `.card-img-fallback` — a solid `#003B6F` panel with a gold chalkboard icon — instead.
+  </Step>
+  <Step title="Type badge">
+    A `<span class="card-tag [modifier]">` injected at the top of `.card-body` identifies the seminar category at a glance.
+  </Step>
+  <Step title="Title">
+    `<h3>` styled at `1.3rem`, `font-weight: 700`, colour `#003B6F`.
+  </Step>
+  <Step title="Objective section">
+    A `.objetivo` block with a gold left border (`3px solid #B38633`) contains the `OBJETIVO:` label and the `.card-objetivo` paragraph. By default the paragraph is clamped to three lines via `-webkit-line-clamp: 3`.
+  </Step>
+  <Step title="Expand/collapse toggle">
+    A `.btn-toggle-texto` button labelled **Ver más** / **Ver menos** toggles the `.expandido` class on `.card-objetivo`, removing the line clamp when expanded.
+  </Step>
+  <Step title="Areas tags">
+    `.card-areas` wraps each entry in `s.areas` as a `<span>` pill with background `#e8f0f8`. Rendered only when `s.areas` is non-empty.
+  </Step>
+  <Step title="Responsible person">
+    `.responsable` line with a gold `fa-user-tie` icon and the coordinator name.
+  </Step>
+  <Step title="Contact details">
+    `.correo` and `.telefono` pill-shaped rows are rendered only when those fields are non-empty strings.
+  </Step>
+  <Step title="Enrollment button">
+    `.btn-inscripcion` spans the full card width. Clicking it calls `openModal(titulo)`, pre-selecting the seminar in the enrollment form.
+  </Step>
+</Steps>
+
+## Placeholder image system
+
+When a seminar object has no `imagen` field, `renderCards()` looks up a URL from the `placeholders` map keyed by `tipo`:
+
+```javascript js/seminarios.js
+const placeholders = {
+    'anual':      'https://via.placeholder.com/400x160/003B6F/ffffff?text=Seminario+Anual',
+    'permanente': 'https://via.placeholder.com/400x160/1f4b7a/ffffff?text=Seminario+Permanente',
+    'especial':   'https://via.placeholder.com/400x160/B38633/003B6F?text=Seminario'
+};
+
+// Inside renderCards():
+let imgSrc = s.imagen || placeholders[s.tipo] || placeholders['especial'];
+```
+
+The colours in the placeholder URLs mirror the badge colours, keeping the card visually consistent even without a real photo.
+
+## The `renderCards` function
+
+The function is intentionally stateless: it clears the container, rebuilds every card from the supplied array, and re-attaches click listeners.
+
+```javascript js/seminarios.js
+function renderCards(filteredSeminarios) {
+    container.innerHTML = '';
+    filteredSeminarios.forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'seminario-card';
+        let tagText  = s.tipo === 'anual'      ? 'Anual'
+                     : (s.tipo === 'permanente' ? 'Permanente' : 'Seminario');
+        let tagClass = s.tipo === 'permanente'  ? 'permanente'
+                     : (s.tipo === 'especial'   ? 'especial'   : '');
+        let correoHtml   = s.correo   ? `<div class="correo">…</div>`   : '';
+        let telefonoHtml = s.telefono ? `<div class="telefono">…</div>` : '';
+        let imgSrc       = s.imagen   || placeholders[s.tipo] || placeholders['especial'];
+        let areasHtml    = (s.areas && s.areas.length)
+                         ? `<div class="card-areas">…</div>` : '';
+        card.innerHTML = `…`;
+        container.appendChild(card);
+    });
+
+    // Re-attach enrollment button listeners after every render
+    document.querySelectorAll('.btn-inscripcion').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const titulo = btn.closest('.seminario-card').querySelector('h3').textContent;
+            openModal(titulo);
+        });
+    });
+}
+
+// Initial render — all 31 seminars
+renderCards(seminarios);
+```
+
+<Note>
+`renderCards` is called both on initial page load and every time the user changes a filter or types in the search box. Event delegation on `#cardsContainer` handles the **Ver más / Ver menos** toggle so it keeps working after each re-render.
+</Note>
+
+## Expandable objective text
+
+The toggle is handled via event delegation on `#cardsContainer`, not on individual buttons, so it survives every call to `renderCards`:
+
+```javascript js/seminarios.js
+container.addEventListener('click', function(e) {
+    if (e.target.classList.contains('btn-toggle-texto')) {
+        const btn   = e.target;
+        const texto = btn.previousElementSibling;   // .card-objetivo <p>
+        texto.classList.toggle('expandido');
+        btn.textContent = texto.classList.contains('expandido')
+            ? 'Ver menos'
+            : 'Ver más';
+    }
+});
+```
+
+```css css/typography.css
+/* Collapsed: three-line clamp */
+.card-objetivo {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Expanded: remove clamp */
+.card-objetivo.expandido {
+    -webkit-line-clamp: unset;
+}
+```
